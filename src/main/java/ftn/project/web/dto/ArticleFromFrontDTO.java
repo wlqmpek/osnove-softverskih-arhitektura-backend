@@ -1,4 +1,4 @@
-package ftn.project.models.dto;
+package ftn.project.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

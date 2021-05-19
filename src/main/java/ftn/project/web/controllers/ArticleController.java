@@ -1,7 +1,7 @@
-package ftn.project.controllers;
+package ftn.project.web.controllers;
 
-import ftn.project.models.dto.ArticleFromFrontDTO;
-import ftn.project.models.entity.Article;
+import ftn.project.web.dto.ArticleFromFrontDTO;
+import ftn.project.models.Article;
 import ftn.project.services.ArticleService;
 import ftn.project.support.ArticleFromFrontDTOToArticle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class ArticleController {
         ResponseEntity response = null;
         Article createdArticle = articleService.save(articleFromFrontDTOToArticle.convert(articleFromFrontDTO));
         response = (createdArticle == null) ?
-                new ResponseEntity(createdArticle, HttpStatus.NOT_ACCEPTABLE) : new ResponseEntity<>(createdArticle, HttpStatus.CREATED);
+                new ResponseEntity(createdArticle, HttpStatus.BAD_REQUEST) : new ResponseEntity<>(createdArticle, HttpStatus.CREATED);
 
         return response;
     }
@@ -59,7 +59,7 @@ public class ArticleController {
             articleNew.setArticleId(id);
             articleNew = articleService.update(articleNew);
             response = (articleNew == null) ?
-                    new ResponseEntity(articleNew, HttpStatus.NOT_ACCEPTABLE) : new ResponseEntity(articleNew, HttpStatus.OK);
+                    new ResponseEntity(articleNew, HttpStatus.BAD_REQUEST) : new ResponseEntity(articleNew, HttpStatus.OK);
         }
 
         return response;
@@ -72,7 +72,7 @@ public class ArticleController {
         Article article = articleService.findOne(id);
         if(article != null) articleService.remove(article.getArticleId());
         response = (article == null) ?
-                new ResponseEntity(article, HttpStatus.NOT_FOUND) : new ResponseEntity(HttpStatus.OK);
+                new ResponseEntity(article, HttpStatus.NOT_FOUND) : new ResponseEntity(HttpStatus.NO_CONTENT);
 
         return response;
     }

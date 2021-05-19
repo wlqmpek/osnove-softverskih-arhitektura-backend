@@ -1,7 +1,7 @@
 package ftn.project.support;
 
-import ftn.project.models.dto.ArticleFromFrontDTO;
-import ftn.project.models.entity.Article;
+import ftn.project.web.dto.ArticleFromFrontDTO;
+import ftn.project.models.Article;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

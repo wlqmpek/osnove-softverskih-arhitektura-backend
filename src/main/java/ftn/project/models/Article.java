@@ -1,4 +1,4 @@
-package ftn.project.models.entity;
+package ftn.project.models;
 
 import lombok.*;
 

@@ -14,7 +14,6 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @ControllerAdvice
 public class CustomRestExceptions extends ResponseEntityExceptionHandler {
 
-
     //CUSTOM EXCEPTION FOR SQLIntegrityConstraintValidation
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     protected ResponseEntity<Object> SQLIntegrityConstraintValidationExceptionHandler(SQLIntegrityConstraintViolationException ex) {

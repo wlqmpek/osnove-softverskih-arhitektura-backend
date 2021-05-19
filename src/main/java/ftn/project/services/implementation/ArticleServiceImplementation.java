@@ -1,7 +1,7 @@
 package ftn.project.services.implementation;
 
 
-import ftn.project.models.entity.Article;
+import ftn.project.models.Article;
 import ftn.project.services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

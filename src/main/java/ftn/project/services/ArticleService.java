@@ -1,6 +1,6 @@
 package ftn.project.services;
 
-import ftn.project.models.entity.Article;
+import ftn.project.models.Article;
 
 import java.util.List;
 
