@@ -17,7 +17,7 @@ public class CustomRestExceptions extends ResponseEntityExceptionHandler {
     //CUSTOM EXCEPTION FOR SQLIntegrityConstraintValidation
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     protected ResponseEntity<Object> SQLIntegrityConstraintValidationExceptionHandler(SQLIntegrityConstraintViolationException ex) {
-        ApiError apiError = new ApiError(HttpStatus.NOT_ACCEPTABLE);
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
         apiError.setMessage(ex.getMessage());
         return buildResponseEntity(apiError);
     }
@@ -25,7 +25,7 @@ public class CustomRestExceptions extends ResponseEntityExceptionHandler {
     //CUSTOM EXCEPTION FOR SQLIntegrityConstraintValidation
     @ExceptionHandler(PropertyValueException.class)
     protected ResponseEntity<Object> PropertyValueExceptionHandler(PropertyValueException ex) {
-        ApiError apiError = new ApiError(HttpStatus.NOT_ACCEPTABLE);
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
         apiError.setMessage(ex.getMessage());
         return buildResponseEntity(apiError);
     }
