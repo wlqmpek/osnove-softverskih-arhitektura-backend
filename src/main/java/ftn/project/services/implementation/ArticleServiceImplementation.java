@@ -2,12 +2,14 @@ package ftn.project.services.implementation;
 
 
 import ftn.project.models.Article;
+import ftn.project.models.Buyer;
 import ftn.project.services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ftn.project.repositories.ArticleRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -18,11 +20,11 @@ public class ArticleServiceImplementation implements ArticleService {
 
     @Override
     public Article findOne(Long id) {
-        Article article = null;
-        Optional<Article> optionalArticle = articleRepository.findById(id);
-        article = (optionalArticle.isPresent())?
-                optionalArticle.get() : null;
-        return article;
+        Optional<Article> article = articleRepository.findById(id);
+        if(article.isEmpty()) {
+                throw new NoSuchElementException("Article with id = " + id + " not found!");
+        }
+        return article.get();
     }
 
     @Override

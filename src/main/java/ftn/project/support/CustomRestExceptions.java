@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.NoSuchElementException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
@@ -26,6 +27,14 @@ public class CustomRestExceptions extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PropertyValueException.class)
     protected ResponseEntity<Object> PropertyValueExceptionHandler(PropertyValueException ex) {
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
+        apiError.setMessage(ex.getMessage());
+        return buildResponseEntity(apiError);
+    }
+
+    //CUSTOM EXCEPTION FOR NoSuchElementException
+    @ExceptionHandler(NoSuchElementException.class)
+    protected ResponseEntity<Object> NoSuchElementExceptionHandler(NoSuchElementException ex) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND);
         apiError.setMessage(ex.getMessage());
         return buildResponseEntity(apiError);
     }

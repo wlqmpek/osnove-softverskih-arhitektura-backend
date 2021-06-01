@@ -32,7 +32,7 @@ public class Article {
     private Double price;
 
     @NotNull
-    @Column(name = "imagePath", nullable = false)
+    @Column(name = "image_path", nullable = false)
     private String imagePath;
 
 
