@@ -2,7 +2,7 @@ package ftn.project.services.implementation;
 
 
 import ftn.project.models.Article;
-import ftn.project.models.Buyer;
+import ftn.project.models.Discount;
 import ftn.project.services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,6 +51,14 @@ public class ArticleServiceImplementation implements ArticleService {
     @Override
     public void remove(Long id) {
         articleRepository.delete(findOne(id));
+    }
+
+    @Override
+    public void bindDiscountToArticle(Discount discount) {
+        for(Article article:discount.getArticles()) {
+            article.getDiscounts().add(discount);
+            update(article);
+        }
     }
 
 

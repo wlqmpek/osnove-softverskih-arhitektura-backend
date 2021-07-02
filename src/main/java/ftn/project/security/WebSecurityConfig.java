@@ -5,6 +5,7 @@ import ftn.project.jwt.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -60,12 +61,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint).and()
 
                 // svim korisnicima dopusti da pristupe putanjama /korisnici/prijava
-                .authorizeRequests().antMatchers("/korisnici/prijava").permitAll()
-//                .antMatchers("/korisnici/refreshtoken").permitAll()
+                .authorizeRequests().antMatchers("/auth/login", "/sellers/registration", "/buyers/registration").permitAll()
+                .and().authorizeRequests().antMatchers(HttpMethod.GET, "/articles").permitAll()
 
                 // za svaki drugi zahtev korisnik mora biti autentifikovan
-//                .anyRequest().authenticated().and()
-                .anyRequest().permitAll().and()
+                .anyRequest().authenticated().and()
+//                .anyRequest().permitAll().and()
 
                 // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT tokena umesto cistih korisnickog imena i lozinke (koje radi BasicAuthenticationFilter)
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

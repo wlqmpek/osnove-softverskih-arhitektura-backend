@@ -1,6 +1,7 @@
 package ftn.project.services;
 
 import ftn.project.models.Article;
+import ftn.project.models.Discount;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface ArticleService {
 
     void remove(Long id);
 
+    void bindDiscountToArticle(Discount discount);
 }

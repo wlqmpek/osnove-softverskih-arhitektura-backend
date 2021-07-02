@@ -8,6 +8,8 @@ import java.util.List;
 public interface BuyerService {
     Buyer findOne(Long id);
 
+    Buyer findBuyerByUsername(String username);
+
     List<Buyer> findAll();
 
     Buyer save(Buyer buyer);

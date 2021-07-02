@@ -1,6 +1,8 @@
 package ftn.project.services.implementation;
 
 import ftn.project.models.Article;
+import ftn.project.models.ArticleQuantity;
+import ftn.project.models.Order;
 import ftn.project.models.Seller;
 import ftn.project.repositories.SellerRepository;
 import ftn.project.services.SellerService;
@@ -10,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class SellerServiceImplementation implements SellerService {
@@ -28,6 +28,15 @@ public class SellerServiceImplementation implements SellerService {
         Optional<Seller> seller = sellerRepository.findById(id);
         if(seller.isEmpty()) {
             throw new NoSuchElementException("Seller with id = " + id + " not found!");
+        }
+        return seller.get();
+    }
+
+    @Override
+    public Seller findSellerByUsername(String username) {
+        Optional<Seller> seller = sellerRepository.findSellerByUsername(username);
+        if(seller.isEmpty()) {
+            throw new NoSuchElementException("Seller with username = " + username + " not found!");
         }
         return seller.get();
     }
@@ -51,5 +60,35 @@ public class SellerServiceImplementation implements SellerService {
     @Override
     public void remove(Long id) {
         sellerRepository.delete(findOne(id));
+    }
+
+    @Override
+    public double calculateRating(Seller seller) {
+        double rating = 0;
+        Set<Order> uniqueOrders = new HashSet<>();
+
+        for(Article article: seller.getArticles()) {
+            for(ArticleQuantity articleQuantity:article.getArticleQuantity()) {
+                if(articleQuantity.getOrder().isDelivered()) {
+                    uniqueOrders.add(articleQuantity.getOrder());
+                }
+            }
+        }
+        for(Order order:uniqueOrders) {
+            rating += order.getRating();
+        }
+        if(uniqueOrders.size() == 0) {
+            rating = 0;
+        } else {
+            rating = rating / uniqueOrders.size();
+        }
+        return rating;
+    }
+
+    @Override
+    public void deleteArticle(Article article) {
+        Seller seller = findOne(article.getSeller().getUserId());
+        seller.getArticles().remove(article);
+        update(seller);
     }
 }

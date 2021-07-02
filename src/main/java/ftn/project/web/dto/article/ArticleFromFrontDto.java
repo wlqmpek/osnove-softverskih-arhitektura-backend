@@ -1,4 +1,4 @@
-package ftn.project.web.dto;
+package ftn.project.web.dto.article;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,8 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArticleFromFrontDTO {
+public class ArticleFromFrontDto {
+
     @NotBlank(message = "Name not entered!")
     private String name;
     @NotBlank(message = "Description not entered!")
@@ -18,4 +19,5 @@ public class ArticleFromFrontDTO {
     private Double price;
     @NotBlank(message = "Image path not entered!")
     private String imagePath;
+
 }

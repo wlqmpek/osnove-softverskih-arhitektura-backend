@@ -2,14 +2,18 @@ package ftn.project.web.controllers;
 
 import ftn.project.models.Seller;
 import ftn.project.services.SellerService;
+import ftn.project.support.converters.seller.SellerRegistrationDtoToSeller;
+import ftn.project.support.converters.seller.SellerToSellerToFrontDto;
+import ftn.project.web.dto.seller.SellerRegisterationDto;
+import ftn.project.web.dto.seller.SellerToFrontDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -19,25 +23,41 @@ public class SellerController {
     @Autowired
     private SellerService sellerService;
 
+    @Autowired
+    private SellerRegistrationDtoToSeller sellerRegistrationDtoToSeller;
+
+    @Autowired
+    private SellerToSellerToFrontDto sellerToSellerToFrontDto;
+
+
     @GetMapping
-    public ResponseEntity<List<Seller>> findAll() {
+    public ResponseEntity<List<SellerToFrontDto>> findAll() {
         List<Seller> sellers = sellerService.findAll();
-        return new ResponseEntity<>(sellers, HttpStatus.OK);
+        List<SellerToFrontDto> sellerToFrontDtos = new ArrayList<>();
+        for(Seller s:sellers) {
+            sellerToFrontDtos.add(sellerToSellerToFrontDto.convert(s));
+        }
+        return new ResponseEntity<>(sellerToFrontDtos, HttpStatus.OK);
     }
+
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Seller> findOne(@PathVariable("id") Long id) {
+    public ResponseEntity<SellerToFrontDto> findOne(@PathVariable("id") Long id) {
         Seller seller = sellerService.findOne(id);
-        return new ResponseEntity<>(seller, HttpStatus.OK);
+        SellerToFrontDto sellerToFrontDto = sellerToSellerToFrontDto.convert(seller);
+        return new ResponseEntity<>(sellerToFrontDto, HttpStatus.OK);
     }
 
-    @PostMapping(consumes = "application/json")
-    public ResponseEntity<Seller> create(@RequestBody Seller seller) {
+    //CREATE
+    @PostMapping(value = "/registration",consumes = "application/json")
+    public ResponseEntity<Seller> create(@RequestBody SellerRegisterationDto sellerRegisterationDto) {
+        System.out.println("Seller registration dto " + sellerRegisterationDto);
         ResponseEntity response = null;
-        seller = sellerService.save(seller);
+        Seller seller = sellerService.save(sellerRegistrationDtoToSeller.convert(sellerRegisterationDto));
+        SellerToFrontDto sellerToFrontDto = sellerToSellerToFrontDto.convert(seller);
 
-        response = (seller == null) ?
-                new ResponseEntity(seller, HttpStatus.BAD_REQUEST) : new ResponseEntity<>(seller, HttpStatus.CREATED);
+        response = (sellerToFrontDto == null) ?
+                new ResponseEntity(sellerToFrontDto, HttpStatus.BAD_REQUEST) : new ResponseEntity<>(sellerToFrontDto, HttpStatus.CREATED);
 
         return response;
     }

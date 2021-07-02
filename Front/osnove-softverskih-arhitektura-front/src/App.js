@@ -1,0 +1,53 @@
+import './App.css';
+import Registrtion from "./pages/Registration";
+import Login from "./pages/Login";
+import Logout from "./components/LogoutComponent";
+import ListSellers from "./pages/ListSellers";
+import ListSellerArticles from "./pages/ListSellerArticles";
+import ListDeliveredOrders from "./pages/ListDeliveredOrders";
+import ListUndeliveredOrders from "./pages/ListUndeliveredOrders";
+import CommentManager from "./pages/CommentManager";
+import CreateDiscount from "./pages/CreateDiscount";
+import LeaveFeedback from "./pages/LeaveFeedback";
+import MyArticles from "./pages/MyArticles";
+import Order from "./pages/Order";
+import NavBarComponent from "./components/NavBarComponent";
+// import FrontPage from './components/FrontPage'
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+// import { PrivateRoute } from "./components/PrivateRoute";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-datepicker/dist/react-datepicker.css';
+
+function App() {
+  return (
+      <div>
+
+          <Router>
+              <NavBarComponent/>
+              <Switch>
+                  <Route exact path="/register" component={Registrtion}></Route>
+              </Switch>
+              <Switch>
+                  <Route exact path="/login" component={Login}></Route>
+                  <Route exact path="/logout" component={Logout}></Route>
+              </Switch>
+              <Switch>
+                  <Route exact path="/sellers" component={ListSellers}></Route>
+                  <Route exact path="/sellers/:id" component={ListSellerArticles}></Route>
+                  <Route exact path="/my_articles" component={MyArticles}></Route>
+                  <Route exact path="/my_comments" component={CommentManager}></Route>
+                  <Route exact path="/create_discount" component={CreateDiscount}></Route>
+
+              </Switch>
+              <Switch>
+                  <Route exact path="/undelivered_orders" component={ListUndeliveredOrders}></Route>
+                  <Route exact path="/delivered_orders" component={ListDeliveredOrders}></Route>
+                  <Route exact path="/orders/:id" component={Order}></Route>
+                  <Route exact path="/order_feedback/:id" component={LeaveFeedback}></Route>
+              </Switch>
+          </Router>
+      </div>
+  );
+}
+
+export default App;

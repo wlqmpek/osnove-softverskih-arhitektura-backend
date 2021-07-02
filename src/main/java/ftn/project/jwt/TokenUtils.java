@@ -20,7 +20,7 @@ public class TokenUtils {
     private String jwtSecret;
 
     // Period vazenja
-    @Value("60000")
+    @Value("60000000")
     private Long jwtExpirationMs;
 
     // Naziv headera kroz koji ce se prosledjivati JWT u komunikaciji server-klijent
@@ -33,11 +33,13 @@ public class TokenUtils {
     //TODO: Dodati role.
     public String generateJwtToken(Authentication authentication) {
         User userPrincipal = (User) authentication.getPrincipal();
+        System.out.println("Time " + (new Date().getTime() + jwtExpirationMs));
         return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .claim("roles", userPrincipal.getAuthorities())
+                .claim("userId", userPrincipal.getUserId())
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
