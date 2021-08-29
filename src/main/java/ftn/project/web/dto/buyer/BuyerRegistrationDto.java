@@ -1,4 +1,4 @@
-package ftn.project.web.dto;
+package ftn.project.web.dto.buyer;
 
 import lombok.Data;
 import lombok.ToString;

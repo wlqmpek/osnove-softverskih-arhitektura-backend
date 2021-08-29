@@ -1,7 +1,11 @@
 package ftn.project.web.controllers;
 
 import ftn.project.models.ArticleQuantity;
+import ftn.project.services.ArticleQuantityService;
+import ftn.project.services.DiscountService;
 import ftn.project.services.SellerService;
+import ftn.project.support.ImageSave;
+import ftn.project.support.LogEvents;
 import ftn.project.support.converters.article.ArticleToArticleToFrontDto;
 import ftn.project.web.dto.article.ArticleFromFrontDto;
 import ftn.project.models.Article;
@@ -13,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +41,12 @@ public class ArticleController {
     @Autowired
     private ArticleToArticleToFrontDto articleToArticleToFrontDto;
 
+    @Autowired
+    private DiscountService discountService;
+
+    @Autowired
+    private ArticleQuantityService articleQuantityService;
+
     //READ_ALL
     @GetMapping
     @PreAuthorize("permitAll()")
@@ -51,7 +63,6 @@ public class ArticleController {
     @GetMapping("/order/{id}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<List<ArticleToFrontDto>> findAllByOrder(@PathVariable("id") Long id) {
-        System.out.println("Get article by order!");
         List<Article> articles = articleService.findAll();
         List<ArticleToFrontDto> articleToFrontDtos = new ArrayList<>();
         for(Article article:articles) {
@@ -70,7 +81,7 @@ public class ArticleController {
     @GetMapping("/seller/{id}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<List<ArticleToFrontDto>> findAllBySeller(@PathVariable("id") Long id) {
-        System.out.println("Articl findAll hit!");
+        System.out.println("Articl findAll hit! " + id);
         List<Article> allArticles = articleService.findAll();
         List<Article> articles = new ArrayList<>();
         for(Article a:allArticles) {
@@ -96,7 +107,6 @@ public class ArticleController {
     @PostMapping(consumes = "application/json")
     @PreAuthorize("hasAnyRole('SELLER')")
     public ResponseEntity<ArticleFromFrontDto> create(@Valid @RequestBody ArticleFromFrontDto articleFromFrontDTO, Principal principal) {
-        System.out.println("Article from front " + articleFromFrontDTO);
         ResponseEntity response = null;
         Article createdArticle = articleFromFrontDTOToArticle.convert(articleFromFrontDTO);
         if(createdArticle != null)
@@ -105,11 +115,11 @@ public class ArticleController {
         ArticleToFrontDto articleToFrontDto;
         if(createdArticle != null) {
             articleToFrontDto = articleToArticleToFrontDto.convert(createdArticle);
+
             response = new ResponseEntity(articleToFrontDto, HttpStatus.OK);
         } else {
             response = new ResponseEntity(null, HttpStatus.BAD_REQUEST);
         }
-
         return response;
     }
 
@@ -118,13 +128,13 @@ public class ArticleController {
     @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasAnyRole('SELLER')")
     public ResponseEntity<ArticleToFrontDto> update(@RequestBody @Valid ArticleFromFrontDto articleFromFrontDTO, @PathVariable("id") Long id, Principal principal) {
-        System.out.println("Edit article hit! " + articleFromFrontDTO);
         ResponseEntity response = null;
         Article articleOld = articleService.findOne(id);
         if(!articleOld.getSeller().getUsername().equals(principal.getName())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         Article articleNew = articleFromFrontDTOToArticle.convert(id, articleFromFrontDTO, sellerService.findSellerByUsername(principal.getName()));
+        articleNew.setImagePath(articleOld.getImagePath());
         articleNew = articleService.update(articleNew);
         ArticleToFrontDto articleToFrontDto = articleToArticleToFrontDto.convert(articleNew);
 
@@ -143,9 +153,11 @@ public class ArticleController {
         Article article = articleService.findOne(id);
         System.out.println("Hello " + article);
         if(p.getName().equals(article.getSeller().getUsername())) {
-            //Brisemo iz sellera, i iz porudzbenica
+            //Delete from seller, discount and articleQuantity
             sellerService.deleteArticle(article);
-            System.out.println("Hello " + article);
+            discountService.deleteArticle(article);
+            articleQuantityService.deleteArticle(article);
+//            articleService.remove(article.getArticleId());
             response = (article == null) ?
                     new ResponseEntity(article, HttpStatus.NOT_FOUND) : new ResponseEntity(HttpStatus.NO_CONTENT);
         } else {
@@ -154,5 +166,14 @@ public class ArticleController {
         return response;
     }
 
-
+    //IMAGE
+    @PostMapping(value = "/picture", consumes = "multipart/form-data")
+    @PreAuthorize("hasAnyRole('SELLER')")
+    public ResponseEntity<Long> addPicture(@RequestParam(name = "image") MultipartFile file, Principal principal) throws IOException {
+        Article article = new Article();
+        article.setImagePath(ImageSave.saveImage(file));
+        article.setSeller(sellerService.findSellerByUsername(principal.getName()));
+        article = articleService.save(article);
+        return new ResponseEntity<>(article.getArticleId(), HttpStatus.OK);
+    }
 }

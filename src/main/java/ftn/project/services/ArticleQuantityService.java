@@ -18,4 +18,6 @@ public interface ArticleQuantityService {
     void remove(Long id);
 
     void bindOrderToArticleQuantity(Order order);
+
+    void deleteArticle(Article article);
 }

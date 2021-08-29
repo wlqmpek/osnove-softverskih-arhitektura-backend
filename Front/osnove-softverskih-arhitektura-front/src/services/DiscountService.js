@@ -2,13 +2,13 @@ import AxiosClient from "./clients/AxiosClient";
 
 export const DiscountService = {
     createDiscount,
-    getSellersDiscount
+    getSellersDiscounts
 }
 
 async function createDiscount(discount) {
     return await AxiosClient.post("discounts", discount);
 }
 
-async function getSellersDiscount(id) {
+async function getSellersDiscounts(id) {
     return await AxiosClient.get(`discounts/sellers/${id}`);
 }

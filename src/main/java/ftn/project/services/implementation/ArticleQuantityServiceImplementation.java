@@ -1,6 +1,8 @@
 package ftn.project.services.implementation;
 
+import ftn.project.models.Article;
 import ftn.project.models.ArticleQuantity;
+import ftn.project.models.Discount;
 import ftn.project.models.Order;
 import ftn.project.repositories.ArticleQuantityRepository;
 import ftn.project.services.ArticleQuantityService;
@@ -50,6 +52,13 @@ public class ArticleQuantityServiceImplementation implements ArticleQuantityServ
         for(ArticleQuantity articleQuantity:order.getArticleQuantity()) {
             articleQuantity.setOrder(order);
             update(articleQuantity);
+        }
+    }
+
+    @Override
+    public void deleteArticle(Article article) {
+        for(ArticleQuantity articleQuantity:article.getArticleQuantity()) {
+            remove(articleQuantity.getArticleQuantityId());
         }
     }
 

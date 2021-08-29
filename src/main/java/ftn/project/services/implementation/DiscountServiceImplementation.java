@@ -56,4 +56,12 @@ public class DiscountServiceImplementation implements DiscountService {
             }
         }
     }
+
+    @Override
+    public void deleteArticle(Article article) {
+        for(Discount discount:article.getDiscounts()) {
+            discount.getArticles().remove(article);
+            update(discount);
+        }
+    }
 }

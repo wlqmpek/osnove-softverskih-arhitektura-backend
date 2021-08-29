@@ -24,7 +24,7 @@ public class DiscountToDiscountToFront implements Converter<Discount, DiscountTo
     public DiscountToFrontDto convert(Discount discount) {
         DiscountToFrontDto discountToFrontDto = new DiscountToFrontDto();
         discountToFrontDto.setDiscountId(discount.getDiscountId());
-        discountToFrontDto.setPrecentage(discount.getPercentage());
+        discountToFrontDto.setPercentage(discount.getPercentage());
         discountToFrontDto.setStartDate(discount.getStartDate());
         discountToFrontDto.setEndDate(discount.getEndDate());
         discountToFrontDto.setText(discount.getText());

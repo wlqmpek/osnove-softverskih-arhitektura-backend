@@ -35,7 +35,7 @@ const LeaveFeedbackComponent = (props) => (
             </Form.Group>
             <Button
                 variant="primary"
-                onClick={props.createDiscount}
+                onClick={props.leaveOrderFeedback}
             >
                 Send Feedback
             </Button>

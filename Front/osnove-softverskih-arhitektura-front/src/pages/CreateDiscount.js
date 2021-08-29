@@ -34,7 +34,7 @@ const CreateDiscount = () => {
             const response = await ArticleService.getArticlesFromSeller(AuthenticationService.getUserId());
             setArticles(response.data);
         } catch (error) {
-            console.log(`Error: ${error}`);
+            console.log(`Error: ${error.message}`);
         }
     };
 
@@ -64,11 +64,12 @@ const CreateDiscount = () => {
 
     async function createDiscount() {
         try {
+            console.log(discount)
             await DiscountService.createDiscount(discount);
 
             console.log("Feedback sent!");
         } catch (error) {
-            console.error(`Error: ${error}`);
+            console.error(`Greska: ${error}`);
         }
     }
 

@@ -2,6 +2,7 @@ package ftn.project.web.controllers;
 
 import ftn.project.models.Seller;
 import ftn.project.services.SellerService;
+import ftn.project.support.LogEvents;
 import ftn.project.support.converters.seller.SellerRegistrationDtoToSeller;
 import ftn.project.support.converters.seller.SellerToSellerToFrontDto;
 import ftn.project.web.dto.seller.SellerRegisterationDto;
@@ -50,7 +51,7 @@ public class SellerController {
 
     //CREATE
     @PostMapping(value = "/registration",consumes = "application/json")
-    public ResponseEntity<Seller> create(@RequestBody SellerRegisterationDto sellerRegisterationDto) {
+    public ResponseEntity<SellerToFrontDto> create(@RequestBody SellerRegisterationDto sellerRegisterationDto) {
         System.out.println("Seller registration dto " + sellerRegisterationDto);
         ResponseEntity response = null;
         Seller seller = sellerService.save(sellerRegistrationDtoToSeller.convert(sellerRegisterationDto));

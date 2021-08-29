@@ -40,12 +40,12 @@ public class CustomRestExceptions {
         return buildResponseEntity(apiError);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    protected ResponseEntity<Object> runtimeExceptionHandler(RuntimeException ex) {
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
-        apiError.setMessage(ex.getMessage());
-        return buildResponseEntity(apiError);
-    }
+//    @ExceptionHandler(RuntimeException.class)
+//    protected ResponseEntity<Object> runtimeExceptionHandler(RuntimeException ex) {
+//        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
+//        apiError.setMessage(ex.getMessage());
+//        return buildResponseEntity(apiError);
+//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -58,7 +58,7 @@ public class CustomRestExceptions {
             error.getViolations()
                     .add(new Violation(fieldError.getField(), fieldError.getDefaultMessage()));
         }
-
+        System.out.println("Hello error: " +error);
         return error;
     }
 
@@ -73,7 +73,6 @@ public class CustomRestExceptions {
     //CUSTOM EXCEPTION FOR ConstraintViolationException
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<Object> constraintViolationException(ConstraintViolationException ex) {
-        System.out.println("Hello");
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
         apiError.setMessage(ex.getMessage());
         return buildResponseEntity(apiError);
@@ -88,6 +87,7 @@ public class CustomRestExceptions {
     }
 
     private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {
+        System.out.println(apiError);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 }

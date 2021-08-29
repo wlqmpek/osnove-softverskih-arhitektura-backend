@@ -70,6 +70,7 @@ public class SellerServiceImplementation implements SellerService {
         for(Article article: seller.getArticles()) {
             for(ArticleQuantity articleQuantity:article.getArticleQuantity()) {
                 if(articleQuantity.getOrder().isDelivered()) {
+                    System.out.println("Added order to seller " + seller.getUserId() + " order " + articleQuantity.getOrder());
                     uniqueOrders.add(articleQuantity.getOrder());
                 }
             }
@@ -88,7 +89,9 @@ public class SellerServiceImplementation implements SellerService {
     @Override
     public void deleteArticle(Article article) {
         Seller seller = findOne(article.getSeller().getUserId());
+        System.out.println("Seller before " + seller.getArticles());
         seller.getArticles().remove(article);
+        System.out.println("Seller after " + seller.getArticles());
         update(seller);
     }
 }

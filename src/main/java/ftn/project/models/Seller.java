@@ -36,9 +36,9 @@ public class Seller extends User {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "seller", fetch = FetchType.EAGER)
-    private Set<Article> articles;
+    private Set<Article> articles = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "seller", fetch = FetchType.EAGER)
-    private Set<Discount> discounts;
+    private Set<Discount> discounts = new HashSet<>();
 
 }

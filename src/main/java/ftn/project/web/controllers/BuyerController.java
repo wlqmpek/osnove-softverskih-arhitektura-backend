@@ -2,8 +2,10 @@ package ftn.project.web.controllers;
 
 import ftn.project.models.Buyer;
 import ftn.project.services.BuyerService;
-import ftn.project.support.converters.BuyerRegistrationDtoToBuyer;
-import ftn.project.web.dto.BuyerRegistrationDto;
+import ftn.project.support.converters.buyer.BuyerRegistrationDtoToBuyer;
+import ftn.project.support.converters.buyer.BuyerToBuyerFrontDto;
+import ftn.project.web.dto.buyer.BuyerFrontDto;
+import ftn.project.web.dto.buyer.BuyerRegistrationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,9 @@ public class BuyerController {
 
     @Autowired
     private BuyerRegistrationDtoToBuyer buyerRegistrationDtoToBuyer;
+
+    @Autowired
+    private BuyerToBuyerFrontDto buyerToBuyerFrontDto;
 
 //    @GetMapping
 //    public ResponseEntity<List<Buyer>> findAll() {
@@ -34,13 +39,13 @@ public class BuyerController {
 
     //CREATE
     @PostMapping(value = "/registration",consumes = "application/json")
-    public ResponseEntity<Buyer> create(@RequestBody BuyerRegistrationDto buyerRegistrationDto) {
+    public ResponseEntity<BuyerFrontDto> create(@RequestBody BuyerRegistrationDto buyerRegistrationDto) {
         System.out.println("Buyer registration  " + buyerRegistrationDto);
         ResponseEntity response = null;
         Buyer buyer = buyerService.save(buyerRegistrationDtoToBuyer.convert(buyerRegistrationDto));
-
+        BuyerFrontDto buyerFrontDto = buyerToBuyerFrontDto.convert(buyer);
         response = (buyer == null) ?
-                new ResponseEntity(buyer, HttpStatus.BAD_REQUEST) : new ResponseEntity<>(buyer, HttpStatus.CREATED);
+                new ResponseEntity(buyerFrontDto, HttpStatus.BAD_REQUEST) : new ResponseEntity<>(buyer, HttpStatus.CREATED);
 
         return response;
     }

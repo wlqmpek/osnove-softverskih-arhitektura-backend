@@ -22,7 +22,7 @@ public class ArticleFromFrontDTOToArticle implements Converter<ArticleFromFrontD
         article.setName(articleFromFrontDTO.getName());
         article.setDescription(articleFromFrontDTO.getDescription());
         article.setPrice(articleFromFrontDTO.getPrice());
-        article.setImagePath(articleFromFrontDTO.getImagePath());
+//        article.setImagePath(articleFromFrontDTO.getImagePath());
         article.setDiscounts(new HashSet<>());
         return article;
     }
@@ -34,7 +34,7 @@ public class ArticleFromFrontDTOToArticle implements Converter<ArticleFromFrontD
         article.setName(articleFromFrontDTO.getName());
         article.setDescription(articleFromFrontDTO.getDescription());
         article.setPrice(articleFromFrontDTO.getPrice());
-        article.setImagePath(articleFromFrontDTO.getImagePath());
+//        article.setImagePath(articleFromFrontDTO.getImagePath());
         article.setDiscounts(new HashSet<>());
         return article;
     }

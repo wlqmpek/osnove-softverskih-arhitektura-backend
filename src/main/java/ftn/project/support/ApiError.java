@@ -1,12 +1,14 @@
 package ftn.project.support;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.ToString;
 import org.springframework.http.HttpStatus;
 
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@ToString
 class ApiError {
 
     private HttpStatus status;

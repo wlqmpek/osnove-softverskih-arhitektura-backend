@@ -1,11 +1,13 @@
 import SprintsAxiosClient from "./clients/AxiosClient";
 import { TokenService } from "./TokenService";
+import AxiosClient from "./clients/AxiosClient";
 
 export const AuthenticationService = {
     login,
     logout,
     getRole,
-    getUserId
+    getUserId,
+    changePassword
 };
 
 async function login(userCredentials) {
@@ -53,4 +55,8 @@ function getUserId() {
     } else {
         return null;
     }
+}
+
+async function changePassword(changePassword) {
+    return await AxiosClient.post("auth/change-password", changePassword);
 }

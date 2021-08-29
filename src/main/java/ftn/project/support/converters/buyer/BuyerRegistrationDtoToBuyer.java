@@ -1,14 +1,13 @@
-package ftn.project.support.converters;
+package ftn.project.support.converters.buyer;
 
 import ftn.project.models.Authority;
 import ftn.project.models.Buyer;
 import ftn.project.services.AuthorityService;
-import ftn.project.web.dto.BuyerRegistrationDto;
+import ftn.project.web.dto.buyer.BuyerRegistrationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 

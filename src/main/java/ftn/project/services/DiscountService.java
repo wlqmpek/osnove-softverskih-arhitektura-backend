@@ -1,4 +1,5 @@
 package ftn.project.services;
+import ftn.project.models.Article;
 import ftn.project.models.Discount;
 import ftn.project.models.Seller;
 import ftn.project.support.InvalidArticleException;
@@ -17,4 +18,6 @@ public interface DiscountService {
     void remove(Long id);
 
     void validateDiscount(Discount discount) throws InvalidArticleException;
+
+    void deleteArticle(Article article);
 }

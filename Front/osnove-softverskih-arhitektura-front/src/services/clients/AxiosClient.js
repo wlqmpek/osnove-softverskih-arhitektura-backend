@@ -21,6 +21,7 @@ AxiosClient.interceptors.request.use(function success(config) {
     }
     return config;
 }, error => {
+    console.log(error)
     Promise.reject(error);
 });
 

@@ -56,8 +56,9 @@ public class DiscountController {
 
     //READ_ALL_FROM_SELLER
     @GetMapping("/sellers/{id}")
-    @PreAuthorize("premitAll()")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<DiscountToFrontDto>> findAllBySeller(@PathVariable("id") Long id) {
+        System.out.println("Find all by seller hitted");
         List<Discount> allDiscounts = discountService.findAll();
         List<Discount> discounts = new ArrayList<>();
         for(Discount discount:allDiscounts) {

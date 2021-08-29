@@ -16,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class DiscountToFrontDto {
     private Long discountId;
-    private int precentage;
+    private int percentage;
     private LocalDate startDate;
     private LocalDate endDate;
     private String text;

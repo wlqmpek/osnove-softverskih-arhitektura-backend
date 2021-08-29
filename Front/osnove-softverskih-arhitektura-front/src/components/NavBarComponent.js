@@ -12,7 +12,8 @@ const NavBarComponent = () => {
                     <NavDropdown title="Seller" id="collasible-nav-dropdown">
                         <NavDropdown.Item href="/my_articles">My Articles</NavDropdown.Item>
                         <NavDropdown.Item href="/my_comments">Comment Managment</NavDropdown.Item>
-                        <NavDropdown.Item href="/create_discount">Discounts</NavDropdown.Item>
+                        <NavDropdown.Item href="/create_discount">Create Discount</NavDropdown.Item>
+                        <NavDropdown.Item href="/create_article">Create Article</NavDropdown.Item>
                     </NavDropdown>
                     <Nav.Link href="/login">Login</Nav.Link>
                     <Nav.Link href="/logout">Logout</Nav.Link>

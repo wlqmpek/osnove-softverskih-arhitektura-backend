@@ -32,7 +32,7 @@ const ListSellerArticlesComponent = (props) => (
                                 <Button
                                     className="btn btn-danger"
                                     block
-                                    onClick={() => props.goToArticlePage(article.seller)}
+                                    onClick={() => props.goToArticlePage(article.articleId)}
                                 >
                                     More Details
                                 </Button>

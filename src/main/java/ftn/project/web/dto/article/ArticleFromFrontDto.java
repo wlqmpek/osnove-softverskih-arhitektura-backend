@@ -17,7 +17,5 @@ public class ArticleFromFrontDto {
     private String description;
     @DecimalMin(value = "0.0", message = "Price must be >= 0")
     private Double price;
-    @NotBlank(message = "Image path not entered!")
-    private String imagePath;
 
 }

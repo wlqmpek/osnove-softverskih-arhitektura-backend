@@ -57,6 +57,7 @@ const CommentManager = () => {
         const val = event.target.checked;
         console.log("Value " + val);
         console.log(param);
+
         try {
             await OrderService.setArchiveComment(param.orderId, {archivedComment: val});
             getOrders();

@@ -7,6 +7,7 @@ export const ArticleService = {
     getArticle,
     createArticle,
     updateArticle,
+    saveImage,
     deleteArticle
 };
 
@@ -33,6 +34,10 @@ async function createArticle(article) {
 //proveri ovo
 async function updateArticle(id, article) {
     return await AxiosClient.put(`articles/${id}`, article);
+}
+
+async function saveImage(image) {
+    return await AxiosClient.post("articles/picture", image);
 }
 
 async function deleteArticle(id) {

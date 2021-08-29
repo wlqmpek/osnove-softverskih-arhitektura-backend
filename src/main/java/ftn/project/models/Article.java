@@ -26,19 +26,15 @@ public class Article {
     @Column(name = "article_id")
     private Long articleId;
 
-    @NotNull
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = true, unique = true)
     private String name;
 
-    @NotNull
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = true)
     private String description;
 
-    @NotNull
-    @Column(name = "price", nullable = false)
+    @Column(name = "price", nullable = true)
     private Double price;
 
-    @NotNull
     @Column(name = "image_path", nullable = false)
     private String imagePath;
 

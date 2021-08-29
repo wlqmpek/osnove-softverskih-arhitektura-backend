@@ -32,7 +32,7 @@ public class BuyerServiceImplementation implements BuyerService {
 
     @Override
     public Buyer findBuyerByUsername(String username) {
-        Optional<Buyer> buyer = buyerRepository.findSellerByUsername(username);
+        Optional<Buyer> buyer = buyerRepository.findBuyerByUsername(username);
         if(buyer.isEmpty()) {
             throw new NoSuchElementException("Buyer with username = " + username + " not found!");
         }

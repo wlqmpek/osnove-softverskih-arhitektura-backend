@@ -32,7 +32,7 @@ const ListSellers = () => {
     };
 
     const goToSellerDiscounts = (id) => {
-        history.push("/sellers/discounts" + id);
+        history.push("/sellers/discounts/" + id);
     };
 
     return(

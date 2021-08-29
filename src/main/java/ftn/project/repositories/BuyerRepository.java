@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface BuyerRepository extends JpaRepository<Buyer, Long> {
-    Optional<Buyer> findSellerByUsername(String username);
+    Optional<Buyer> findBuyerByUsername(String username);
 }
