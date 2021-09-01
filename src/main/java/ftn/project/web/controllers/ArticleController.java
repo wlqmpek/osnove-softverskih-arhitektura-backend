@@ -1,6 +1,7 @@
 package ftn.project.web.controllers;
 
 import ftn.project.models.ArticleQuantity;
+import ftn.project.models.Seller;
 import ftn.project.services.ArticleQuantityService;
 import ftn.project.services.DiscountService;
 import ftn.project.services.SellerService;
@@ -12,6 +13,7 @@ import ftn.project.models.Article;
 import ftn.project.services.ArticleService;
 import ftn.project.support.converters.article.ArticleFromFrontDTOToArticle;
 import ftn.project.web.dto.article.ArticleToFrontDto;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -176,4 +178,24 @@ public class ArticleController {
         article = articleService.save(article);
         return new ResponseEntity<>(article.getArticleId(), HttpStatus.OK);
     }
+
+    // This endpoind shall be used only for editing article's picture.
+    // WLQ 180:7
+    @PutMapping(value = "/picture/{id}", consumes = "multipart/form-data")
+    @PreAuthorize("hasAnyRole('SELLER')")
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") Long id, @RequestParam(name = "picture") MultipartFile file, Principal principal) throws IOException {
+        ResponseEntity responseEntity;
+        Article articleOld = articleService.findOne(id);
+        Seller seller = sellerService.findSellerByUsername(principal.getName());
+        if(articleOld.getSeller().getUserId().equals(seller.getUserId())) {
+            // Yes doing only this wont delete previous picture, too bad that i do not care.
+            articleOld.setImagePath(ImageSave.saveImage(file));
+            articleService.save(articleOld);
+            responseEntity = new ResponseEntity(HttpStatus.OK);
+        } else {
+            responseEntity = new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+        return responseEntity;
+    }
+
 }

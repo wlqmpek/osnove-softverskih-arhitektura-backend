@@ -16,6 +16,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 public class OrderToFrontDto {
     private Long orderId;
+
     private LocalDateTime time;
     private boolean delivered;
     private long buyer;

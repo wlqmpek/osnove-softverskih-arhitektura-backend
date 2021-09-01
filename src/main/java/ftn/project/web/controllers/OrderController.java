@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,7 +120,8 @@ public class OrderController {
     @PostMapping(consumes = "application/json")
     @PreAuthorize("hasAnyRole('BUYER')")
     public ResponseEntity<OrderToFrontDto> initialCreation(@Valid @RequestBody InitialOrderFromFrontDto initialOrderFromFrontDto, Principal principal) {
-        System.out.println(initialOrderFromFrontDto);
+        System.out.println("Creating initial order " + initialOrderFromFrontDto);
+        System.out.println();
         ResponseEntity response = null;
         Order createdInitialOrder = initialOrderFromFrontDtoToOrder.convert(initialOrderFromFrontDto);
         if(createdInitialOrder != null) {
@@ -182,6 +184,7 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('BUYER')")
     public ResponseEntity<OrderToFrontDto> buyerFeedbackFromFront(@PathVariable("id") Long id, @Valid @RequestBody BuyerFeedbackOrderFromFront buyerFeedbackOrderFromFront, Principal principal) {
         System.out.println("Buyer Feedback Hitted!");
+        System.out.println("Buyer feedback " + buyerFeedbackOrderFromFront);
         ResponseEntity response = null;
         Order order = orderService.findOne(id);
         if (order.getBuyer().getUsername().equals(principal.getName())) {

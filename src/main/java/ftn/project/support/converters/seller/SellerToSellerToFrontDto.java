@@ -30,7 +30,7 @@ public class SellerToSellerToFrontDto implements Converter<Seller, SellerToFront
         sellerToFrontDto.setAuthorities(seller.getAuthorities());
         sellerToFrontDto.setBlocked(seller.isBlocked());
         sellerToFrontDto.setRating(sellerService.calculateRating(seller));
-
+        System.out.println("Seller front dto " + sellerToFrontDto);
         return sellerToFrontDto;
     }
 

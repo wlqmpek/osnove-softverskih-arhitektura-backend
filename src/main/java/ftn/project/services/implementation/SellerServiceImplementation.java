@@ -83,7 +83,7 @@ public class SellerServiceImplementation implements SellerService {
         } else {
             rating = rating / uniqueOrders.size();
         }
-        return rating;
+        return Math.round(rating * 100.0) / 100.0;
     }
 
     @Override
