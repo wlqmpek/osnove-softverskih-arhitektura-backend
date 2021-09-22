@@ -25,8 +25,6 @@ import java.util.Optional;
 @Service
 public class UserServiceImplementation implements UserService {
 
-    protected final Log LOGGER = LogFactory.getLog(getClass());
-
     @Autowired
     private UserRepository userRepository;
 
@@ -83,15 +81,11 @@ public class UserServiceImplementation implements UserService {
         String username = currentUser.getName();
 
         if(authenticationManager != null) {
-            LOGGER.debug("Re-authenticating user '" + username + "' for password change request.");
-
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, changePasswordDto.getCurrentPassword()));
         } else {
-            LOGGER.debug("No authentication manager set. can't change Password!");
             return;
         }
 
-        LOGGER.debug("Changing password for user '" + username + "'");
 
         Seller seller = null;
         Buyer buyer = null;

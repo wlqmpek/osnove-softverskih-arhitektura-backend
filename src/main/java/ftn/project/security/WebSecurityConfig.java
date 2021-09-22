@@ -62,7 +62,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // svim korisnicima dopusti da pristupe putanjama /korisnici/prijava
                 .authorizeRequests().antMatchers("/auth/login", "/sellers/registration", "/buyers/registration").permitAll()
-                .and().authorizeRequests().antMatchers(HttpMethod.GET, "/articles").permitAll()
+                .and().authorizeRequests().antMatchers(HttpMethod.GET, "/articles", "/articles/picture/*").permitAll()
 
                 // za svaki drugi zahtev korisnik mora biti autentifikovan
                 .anyRequest().authenticated().and()
