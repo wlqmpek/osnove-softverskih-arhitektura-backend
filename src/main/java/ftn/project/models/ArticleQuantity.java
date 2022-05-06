@@ -26,7 +26,6 @@ public class ArticleQuantity {
     private Order order;
 
     @ToString.Exclude
-    @NonNull
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "article_id", referencedColumnName = "article_id")
     private Article article;

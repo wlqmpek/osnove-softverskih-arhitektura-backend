@@ -24,23 +24,18 @@ public abstract class User implements UserDetails {
     @Column(name = "user_id")
     private Long userId;
 
-    @NotNull
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @NotNull
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @NotNull
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @NotNull
     @Column(name = "password", nullable = false)
     private String password;
 
-    @NotNull
     @Column(name = "is_blocked", nullable = false)
     private boolean isBlocked;
 

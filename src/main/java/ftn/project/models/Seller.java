@@ -23,15 +23,12 @@ public class Seller extends User {
     @Column(name = "registration_date", nullable = true)
     private LocalDate registrationDate;
 
-    @NotNull
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @NotNull
     @Column(name = "address", nullable = false)
     private String address;
 
-    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 

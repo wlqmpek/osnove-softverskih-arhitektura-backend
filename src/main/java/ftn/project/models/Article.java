@@ -39,7 +39,6 @@ public class Article {
     private String imagePath;
 
     @ToString.Exclude
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private Seller seller;

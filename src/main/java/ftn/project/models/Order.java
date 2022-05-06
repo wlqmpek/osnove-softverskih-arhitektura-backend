@@ -25,18 +25,12 @@ public class Order {
     @Column(name = "order_id")
     private Long orderId;
 
-    @NotNull
-    @Column(name = "time")
     private LocalDateTime time;
 
-    @NotNull
-    @Column
     private boolean delivered;
 
-    @Column
     private int rating;
 
-    @Column
     private String comment;
 
     @Column(name = "anonymus_comment")

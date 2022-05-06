@@ -18,7 +18,6 @@ import java.util.Set;
 @Entity
 public class Buyer extends User {
 
-    @NotNull
     @Column(name = "address", nullable = false)
     private String address;
 
