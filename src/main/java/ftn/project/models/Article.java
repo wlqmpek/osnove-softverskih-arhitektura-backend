@@ -1,13 +1,9 @@
 package ftn.project.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -35,8 +31,11 @@ public class Article {
     @Column(name = "price", nullable = true)
     private Double price;
 
-    @Column(name = "image_path", nullable = false)
-    private String imagePath;
+    @Column(name = "image_name", nullable = false)
+    private String imageName;
+
+    @Column(name = "pdf_name")
+    private String pdfName;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)

@@ -1,7 +1,8 @@
 package ftn.project.models;
 
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
+
+
 
 import javax.persistence.Entity;
 import java.util.Collection;

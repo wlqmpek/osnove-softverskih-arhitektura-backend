@@ -1,46 +1,33 @@
 package ftn.project.web.controllers;
 
+import ftn.project.elasticservices.ArticleElasticService;
 import ftn.project.models.ArticleQuantity;
 import ftn.project.models.Picture;
-import ftn.project.models.Seller;
-import ftn.project.services.ArticleQuantityService;
-import ftn.project.services.DiscountService;
-import ftn.project.services.SellerService;
-import ftn.project.support.ImageUtil;
-import ftn.project.support.LogEvents;
+import ftn.project.services.*;
+import ftn.project.support.converters.article.ArticleToArticleToBeIndexedDto;
 import ftn.project.support.converters.article.ArticleToArticleToFrontDto;
 import ftn.project.web.dto.article.ArticleFromFrontDto;
 import ftn.project.models.Article;
-import ftn.project.services.ArticleService;
-import ftn.project.support.converters.article.ArticleFromFrontDTOToArticle;
+import ftn.project.web.dto.article.ArticleSearchParams;
+import ftn.project.web.dto.article.ArticleToBeIndexedDto;
 import ftn.project.web.dto.article.ArticleToFrontDto;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(value = "/articles")
 public class ArticleController {
 
@@ -48,13 +35,15 @@ public class ArticleController {
     private ArticleService articleService;
 
     @Autowired
+    private ArticleElasticService articleElasticService;
+
+    @Autowired
     private SellerService sellerService;
 
     @Autowired
-    private ArticleFromFrontDTOToArticle articleFromFrontDTOToArticle;
-
-    @Autowired
     private ArticleToArticleToFrontDto articleToArticleToFrontDto;
+    @Autowired
+    private ArticleToArticleToBeIndexedDto articleToArticleToBeIndexedDtoConverter;
 
     @Autowired
     private DiscountService discountService;
@@ -63,15 +52,15 @@ public class ArticleController {
     private ArticleQuantityService articleQuantityService;
 
     //READ_ALL
-    @GetMapping
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<List<ArticleToFrontDto>> findAll() {
-        List<Article> articles = articleService.findAll();
-        List<ArticleToFrontDto> articleToFrontDtos = new ArrayList<>();
-        for(Article a:articles)
-            articleToFrontDtos.add(articleToArticleToFrontDto.convert(a));
-        return new ResponseEntity(articleToFrontDtos, HttpStatus.OK);
-    }
+//    @GetMapping
+//    @PreAuthorize("permitAll()")
+//    public ResponseEntity<List<ArticleToFrontDto>> findAll() {
+//        List<Article> articles = articleService.findAll();
+//        List<ArticleToFrontDto> articleToFrontDtos = new ArrayList<>();
+//        for(Article a:articles)
+//            articleToFrontDtos.add(articleToArticleToFrontDto.convert(a));
+//        return new ResponseEntity(articleToFrontDtos, HttpStatus.OK);
+//    }
 
     //GET_ARTICLE_FROM_ORDER
     //TODO: Limit access to certain buyers and sellers using Principal!
@@ -118,46 +107,65 @@ public class ArticleController {
         return new ResponseEntity<>(articleToFrontDto, HttpStatus.OK);
     }
 
-    //CREATE
-    @PostMapping(consumes = "application/json")
-    @PreAuthorize("hasAnyRole('SELLER')")
-    public ResponseEntity<ArticleFromFrontDto> create(@Valid @RequestBody ArticleFromFrontDto articleFromFrontDTO, Principal principal) {
-        ResponseEntity response = null;
-        Article createdArticle = articleFromFrontDTOToArticle.convert(articleFromFrontDTO);
-        if(createdArticle != null)
-            createdArticle.setSeller(sellerService.findSellerByUsername(principal.getName()));
-        createdArticle = articleService.save(createdArticle);
-        ArticleToFrontDto articleToFrontDto;
-        if(createdArticle != null) {
-            articleToFrontDto = articleToArticleToFrontDto.convert(createdArticle);
+    @GetMapping
+    public ResponseEntity<List<ArticleToFrontDto>> find(@RequestBody ArticleSearchParams searchParams) {
 
-            response = new ResponseEntity(articleToFrontDto, HttpStatus.OK);
-        } else {
-            response = new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+        List<Article> articles = articleService
+                .find(searchParams);
+
+        List<ArticleToFrontDto> toFrontDtos = articles.stream().map(article -> articleToArticleToFrontDto.convert(article)).collect(Collectors.toList());
+
+        return new ResponseEntity<>(toFrontDtos, HttpStatus.OK);
+    }
+
+
+    //CREATE
+    //@PostMapping(consumes = "application/json")
+    @PostMapping(consumes = {"multipart/form-data"})
+    @PreAuthorize("hasAnyRole('SELLER')")
+    public ResponseEntity create(@ModelAttribute ArticleFromFrontDto articleFromFrontDTO, Principal principal) {
+        articleFromFrontDTO.setSellerUsername(principal.getName());
+
+        Article savedArticle =
+                articleService.save(articleFromFrontDTO);
+
+        ArticleToBeIndexedDto newArticleToBeIndexed =
+                articleToArticleToBeIndexedDtoConverter.convert(savedArticle);
+
+        //newArticleToBeIndexed.setPdf(articleFromFrontDTO.getPdf());
+
+        try {
+            //todo: završi implementaciju ovoga, proveri articleService da li je sve okej n
+            articleElasticService.indexUploadedArticle(newArticleToBeIndexed);
+
+        } catch (IOException e) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        return response;
+
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 
     //UPDATE treba testirati za principal.
     //TODO: Aj molim te vidi refaktorisi ovu bljuvotinu.
-    @PutMapping(value = "/{id}", consumes = "application/json")
-    @PreAuthorize("hasAnyRole('SELLER')")
-    public ResponseEntity<ArticleToFrontDto> update(@RequestBody @Valid ArticleFromFrontDto articleFromFrontDTO, @PathVariable("id") Long id, Principal principal) {
-        ResponseEntity response = null;
-        Article articleOld = articleService.findOne(id);
-        if(!articleOld.getSeller().getUsername().equals(principal.getName())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        Article articleNew = articleFromFrontDTOToArticle.convert(id, articleFromFrontDTO, sellerService.findSellerByUsername(principal.getName()));
-        articleNew.setImagePath(articleOld.getImagePath());
-        articleNew = articleService.update(articleNew);
-        ArticleToFrontDto articleToFrontDto = articleToArticleToFrontDto.convert(articleNew);
-
-        response = (articleNew == null) ?
-                new ResponseEntity(null, HttpStatus.BAD_REQUEST) : new ResponseEntity(articleToFrontDto, HttpStatus.OK);
-
-        return response;
-    }
+//    @PutMapping(value = "/{id}", consumes = "application/json")
+//    @PreAuthorize("hasAnyRole('SELLER')")
+//    public ResponseEntity<ArticleToFrontDto> update(@RequestBody @Valid ArticleFromFrontDto articleFromFrontDTO, @PathVariable("id") Long id, Principal principal) {
+//        ResponseEntity response = null;
+//        Article articleOld = articleService.findOne(id);
+//
+//        if(!articleOld.getSeller().getUsername().equals(principal.getName())) {
+//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//        }
+//        Article articleNew = articleFromFrontDTOToArticle.convert(id, articleFromFrontDTO, sellerService.findSellerByUsername(principal.getName()));
+//        articleNew.setImagePath(articleOld.getImagePath());
+//        articleNew = articleService.update(articleNew);
+//        ArticleToFrontDto articleToFrontDto = articleToArticleToFrontDto.convert(articleNew);
+//
+//        response = (articleNew == null) ?
+//                new ResponseEntity(null, HttpStatus.BAD_REQUEST) : new ResponseEntity(articleToFrontDto, HttpStatus.OK);
+//
+//        return response;
+//    }
 
     //DELETE
     @DeleteMapping(value = "/{id}")
@@ -182,35 +190,35 @@ public class ArticleController {
     }
 
     //IMAGE
-    @PostMapping(value = "/picture", consumes = "multipart/form-data")
-    @PreAuthorize("hasAnyRole('SELLER')")
-    public ResponseEntity<Long> addPicture(@RequestParam(name = "picture") MultipartFile file, Principal principal) throws IOException {
-        System.out.println("Add pic hitted");
-        Article article = new Article();
-        article.setImagePath(ImageUtil.saveImage(file));
-        article.setSeller(sellerService.findSellerByUsername(principal.getName()));
-        article = articleService.save(article);
-        return new ResponseEntity<>(article.getArticleId(), HttpStatus.OK);
-    }
+//    @PostMapping(value = "/picture", consumes = "multipart/form-data")
+//    @PreAuthorize("hasAnyRole('SELLER')")
+//    public ResponseEntity<Long> addPicture(@RequestParam(name = "picture") MultipartFile file, Principal principal) throws IOException {
+//        System.out.println("Add pic hitted");
+//        Article article = new Article();
+//        article.setImagePath(ImageUtil.saveImage(file));
+//        article.setSeller(sellerService.findSellerByUsername(principal.getName()));
+//        article = articleService.save(article);
+//        return new ResponseEntity<>(article.getArticleId(), HttpStatus.OK);
+//    }
 
     // This endpoind shall be used only for editing article's picture.
     // WLQ 180:7
-    @PutMapping(value = "/picture/{id}", consumes = "multipart/form-data")
-    @PreAuthorize("hasAnyRole('SELLER')")
-    public ResponseEntity<Void> editPicture(@PathVariable(name = "id") Long id, @RequestParam(name = "picture") MultipartFile file, Principal principal) throws IOException {
-        ResponseEntity responseEntity;
-        Article articleOld = articleService.findOne(id);
-        Seller seller = sellerService.findSellerByUsername(principal.getName());
-        if(articleOld.getSeller().getUserId().equals(seller.getUserId())) {
-            // Yes doing only this wont delete previous picture, too bad that i do not care.
-            articleOld.setImagePath(ImageUtil.saveImage(file));
-            articleService.save(articleOld);
-            responseEntity = new ResponseEntity(HttpStatus.OK);
-        } else {
-            responseEntity = new ResponseEntity(HttpStatus.UNAUTHORIZED);
-        }
-        return responseEntity;
-    }
+//    @PutMapping(value = "/picture/{id}", consumes = "multipart/form-data")
+//    @PreAuthorize("hasAnyRole('SELLER')")
+//    public ResponseEntity<Void> editPicture(@PathVariable(name = "id") Long id, @RequestParam(name = "picture") MultipartFile file, Principal principal) throws IOException {
+//        ResponseEntity responseEntity;
+//        Article articleOld = articleService.findOne(id);
+//        Seller seller = sellerService.findSellerByUsername(principal.getName());
+//        if(articleOld.getSeller().getUserId().equals(seller.getUserId())) {
+//            // Yes doing only this wont delete previous picture, too bad that i do not care.
+//            articleOld.setImagePath(ImageUtil.saveImage(file));
+//            articleService.save(articleOld);
+//            responseEntity = new ResponseEntity(HttpStatus.OK);
+//        } else {
+//            responseEntity = new ResponseEntity(HttpStatus.UNAUTHORIZED);
+//        }
+//        return responseEntity;
+//    }
 
 
     // This endpoint should be used for retrieving article picture.
@@ -218,7 +226,7 @@ public class ArticleController {
     public ResponseEntity<Picture> getPicture(@PathVariable(name = "id") Long id, HttpServletRequest request) throws Exception {
         System.out.println("Get picture hitted");
         Article article = articleService.findOne(id);
-        Picture picture = new Picture(article.getImagePath());
+        Picture picture = new Picture(article.getImageName());
 //        Path filePath = Paths.get(prefix + article.getImagePath());
 //        Resource res = new UrlResource(filePath.toUri());
 //        String mimeType = null;

@@ -28,7 +28,20 @@ async function getArticle(id) {
 }
 
 async function createArticle(article) {
-    return await AxiosClient.post("articles", article);
+    const formData = new FormData();
+    formData.append("name", article.name);
+    formData.append("description", article.description);
+    formData.append("price", article.price);
+    formData.append("image", article.image);
+    formData.append("pdf", article.pdf);
+
+    const config = {
+        headers: {
+            "content-type": "multipart/form-data"
+        }
+    };
+
+    return await AxiosClient.post("articles", formData, config);
 }
 
 //proveri ovo

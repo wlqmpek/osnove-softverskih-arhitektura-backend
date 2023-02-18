@@ -19,7 +19,7 @@ public class ArticleToArticleToFrontDto implements Converter<Article, ArticleToF
         articleToFrontDto.setName(article.getName());
         articleToFrontDto.setDescription(article.getDescription());
         articleToFrontDto.setPrice(article.getPrice());
-        articleToFrontDto.setImagePath(article.getImagePath());
+        articleToFrontDto.setImageName(article.getImageName());
         articleToFrontDto.setSeller(article.getSeller().getUserId());
         for(Discount d:article.getDiscounts()) {
             if((d.getStartDate().isBefore(LocalDate.now()) || d.getStartDate().isEqual(LocalDate.now())) && (d.getEndDate().isAfter(LocalDate.now()) || d.getEndDate().isEqual(LocalDate.now()))) {

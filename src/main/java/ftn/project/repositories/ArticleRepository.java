@@ -11,5 +11,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     List<Article> findByNameIsContaining(String str);
 
-
+    List<Article> findByArticleIdIn(List<Long> ids);
 }

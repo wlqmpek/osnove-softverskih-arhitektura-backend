@@ -35,10 +35,31 @@ const CreateArticleComponent = (props) => (
             <FormGroup>
                 <FormLabel>Image</FormLabel>
                 <FormControl
-                    onChange={e => props.setImage(e.target.files[0])}
+                    onChange={(event) => props.handleFileInputChange("image")(event.target.files[0])}
                     required
                     type="file"
-                    accept=".png, .jpg"
+                    accept=".png, .jpg, .jpeg"
+                    // as="input"
+                />
+            </FormGroup>
+            {/*<FormGroup>*/}
+            {/*    <FormLabel>Image</FormLabel>*/}
+            {/*    <FormControl*/}
+            {/*        onChange={e => props.setImage(e.target.files[0])}*/}
+            {/*        required*/}
+            {/*        type="file"*/}
+            {/*        accept=".png, .jpg, .jpeg"*/}
+            {/*        // as="input"*/}
+            {/*    />*/}
+            {/*</FormGroup>*/}
+            <FormGroup>
+                <FormLabel>PDF</FormLabel>
+                <FormControl
+                    onChange={(event) => props.handleFileInputChange("pdf")(event.target.files[0])}
+
+                    required
+                    type="file"
+                    accept=".pdf"
                     // as="input"
                 />
             </FormGroup>
@@ -51,6 +72,7 @@ const CreateArticleComponent = (props) => (
                 </Button>
             </FormGroup>
         </Form>
+        <Button onClick={props.printObject}></Button>
     </>
 );
 

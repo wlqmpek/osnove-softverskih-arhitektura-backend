@@ -1,6 +1,7 @@
 package ftn.project.support.converters.article;
 
 import ftn.project.models.Seller;
+import ftn.project.services.ArticleService;
 import ftn.project.services.SellerService;
 import ftn.project.web.dto.article.ArticleFromFrontDto;
 import ftn.project.models.Article;
@@ -16,12 +17,16 @@ public class ArticleFromFrontDTOToArticle implements Converter<ArticleFromFrontD
     @Autowired
     private SellerService sellerService;
 
+    @Autowired
+    private ArticleService articleService;
+
     @Override
     public Article convert(ArticleFromFrontDto articleFromFrontDTO) {
         Article article = new Article();
         article.setName(articleFromFrontDTO.getName());
-        article.setDescription(articleFromFrontDTO.getDescription());
+        //article.setDescription(articleFromFrontDTO.getDescription());
         article.setPrice(articleFromFrontDTO.getPrice());
+        article.setSeller(sellerService.findSellerByUsername(articleFromFrontDTO.getSellerUsername()));
 //        article.setImagePath(articleFromFrontDTO.getImagePath());
         article.setDiscounts(new HashSet<>());
         return article;
@@ -32,7 +37,7 @@ public class ArticleFromFrontDTOToArticle implements Converter<ArticleFromFrontD
         article.setArticleId(id);
         article.setSeller(seller);
         article.setName(articleFromFrontDTO.getName());
-        article.setDescription(articleFromFrontDTO.getDescription());
+        //article.setDescription(articleFromFrontDTO.getDescription());
         article.setPrice(articleFromFrontDTO.getPrice());
 //        article.setImagePath(articleFromFrontDTO.getImagePath());
         article.setDiscounts(new HashSet<>());

@@ -13,7 +13,7 @@ public class ArticleToFrontDto {
     private String name;
     private String description;
     private Double price;
-    private String imagePath;
+    private String imageName;
     private Long seller;
     private boolean onSale;
 

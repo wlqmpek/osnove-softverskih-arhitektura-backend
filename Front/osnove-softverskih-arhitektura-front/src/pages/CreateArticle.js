@@ -8,16 +8,23 @@ const CreateArticle = () => {
     const [article, setArticle] = useState({
         name: "",
         description: "",
-        price: ""
+        price: "",
+        image: null,
+        pdf: null
     });
 
-    const [image, setImage] = useState(null);
+    //const [image, setImage] = useState(null);
 
     const history = useHistory();
 
     const handleFormInputChange = (name) => (event) => {
         const val = event.target.value
         setArticle({...article, [name]: val});
+    }
+
+    const handleFileInputChange = (name) => (file) => {
+        console.log("Setting image")
+        setArticle({...article, [name]: file});
     }
 
     async function edit(id) {
@@ -28,23 +35,34 @@ const CreateArticle = () => {
         }
     }
 
-    async function saveImage() {
+    // async function saveImage() {
+    //     try {
+    //         const fd = new FormData()
+    //         fd.append("image", image, image.name)
+    //         await ArticleService.saveImage(fd).then((response) => {
+    //             let id = response.data
+    //             edit(id)
+    //         })
+    //     } catch (error) {
+    //         console.error(error)
+    //     }
+    // }
+
+    async function submit() {
+        console.log(article);
         try {
-            const fd = new FormData()
-            fd.append("image", image, image.name)
-            await ArticleService.saveImage(fd).then((response) => {
-                let id = response.data
-                edit(id)
-            })
+            await ArticleService.createArticle(article);
         } catch (error) {
-            console.error(error)
+            console.log(error);
         }
+        //saveImage();
     }
 
-    const submit = () => {
+    function printObject() {
         console.log(article);
-        saveImage();
     }
+
+
 
     return(
         <Container>
@@ -52,11 +70,13 @@ const CreateArticle = () => {
                 <Col md={{ span: 8, offset: 2}} style={{ textAlign: "center" }}>
                     <h1>Create Article</h1>
                     <CreateArticleComponent
+
                         handleFormInputChange={handleFormInputChange}
-                        saveImage={saveImage}
+                        // saveImage={saveImage}
                         article={article}
-                        setImage={setImage}
+                        handleFileInputChange={handleFileInputChange}
                         submit={submit}
+                        printObject={printObject}
                     />
                 </Col>
             </Row>
