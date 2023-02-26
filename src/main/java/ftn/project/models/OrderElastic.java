@@ -14,7 +14,7 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @ToString
 @Builder
 // End of lombok
-@Document(indexName = "articles")
+@Document(indexName = "orders")
 @Setting(settingPath = "/analyzers/serbianAnalyzer.json")
 public class OrderElastic {
 
@@ -25,8 +25,9 @@ public class OrderElastic {
     private String comment;
 
     @Field(type = FieldType.Double)
-    private Double price;
+    private Double totalPrice;
 
+    @Field(type = FieldType.Keyword)
     private String buyerUsername;
 
 }

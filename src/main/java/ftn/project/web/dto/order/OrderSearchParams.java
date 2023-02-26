@@ -6,10 +6,9 @@ import lombok.Data;
 @Data
 public class OrderSearchParams {
 
+    private Double minTotalPrice;
+    private Double maxTotalPrice;
+    private LogicalOperator priceComment;
     private String comment;
-    private LogicalOperator commentPrice;
-    private Double minPrice;
-    private Double maxPrice;
-
 
 }

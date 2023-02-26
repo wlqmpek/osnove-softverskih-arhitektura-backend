@@ -16,7 +16,7 @@ public interface ArticleService {
 
     List<Article> findAll();
 
-    Article save(ArticleFromFrontDto articleFromFrontDto);
+    Article save(ArticleFromFrontDto articleFromFrontDto) throws IOException;
 
     Article update(Article article);
 

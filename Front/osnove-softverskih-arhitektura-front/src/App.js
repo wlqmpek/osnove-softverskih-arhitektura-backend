@@ -16,11 +16,13 @@ import NavBarComponent from "./components/NavBarComponent";
 import ChangePassword from "./pages/ChangePassword";
 import CreateArticle from "./pages/CreateArticle";
 import ArticleDetails from "./pages/ArticleDetails";
+import SearchArticles from "./pages/SearchArticle";
 // import FrontPage from './components/FrontPage'
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 // import { PrivateRoute } from "./components/PrivateRoute";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-datepicker/dist/react-datepicker.css';
+import SearchOrders from "./pages/SearchOrders";
 
 function App() {
   return (
@@ -43,6 +45,8 @@ function App() {
                   <Route exact path="/my_articles" component={MyArticles}></Route>
                   <Route exact path="/my_comments" component={CommentManager}></Route>
                   <Route exact path="/create_discount" component={CreateDiscount}></Route>
+                  <Route exact path="/search_articles" component={SearchArticles}></Route>
+                  <Route exact path="/search_orders" component={SearchOrders}></Route>
               </Switch>
               <Switch>
                   <Route exact path="/undelivered_orders" component={ListUndeliveredOrders}></Route>

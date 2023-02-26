@@ -15,6 +15,7 @@ public class ArticleToFrontDto {
     private Double price;
     private String imageName;
     private Long seller;
+    private String sellerUsername;
     private boolean onSale;
 
 }

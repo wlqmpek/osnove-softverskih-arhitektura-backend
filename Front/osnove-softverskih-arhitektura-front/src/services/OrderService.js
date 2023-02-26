@@ -8,8 +8,13 @@ export const OrderService = {
     createOrder,
     setDelivered,
     setArchiveComment,
-    buyerFeedback
+    buyerFeedback,
+    searchOrders
 };
+
+async function searchOrders(searchParams) {
+    return await AxiosClient.get("orders", {params : searchParams});
+}
 
 async function getOrder(id) {
     return await AxiosClient.get(`orders/${id}`);

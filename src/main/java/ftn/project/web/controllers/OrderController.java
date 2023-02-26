@@ -1,5 +1,6 @@
 package ftn.project.web.controllers;
 
+import ftn.project.models.Article;
 import ftn.project.models.ArticleQuantity;
 import ftn.project.models.Order;
 import ftn.project.services.ArticleQuantityService;
@@ -7,10 +8,9 @@ import ftn.project.services.BuyerService;
 import ftn.project.services.OrderService;
 import ftn.project.support.converters.order.InitialOrderFromFrontDtoToOrder;
 import ftn.project.support.converters.order.OrderToOrderToFrontDto;
-import ftn.project.web.dto.order.ArchivedCommentOrderFromFrontDto;
-import ftn.project.web.dto.order.BuyerFeedbackOrderFromFront;
-import ftn.project.web.dto.order.InitialOrderFromFrontDto;
-import ftn.project.web.dto.order.OrderToFrontDto;
+import ftn.project.web.dto.article.ArticleSearchParams;
+import ftn.project.web.dto.article.ArticleToFrontDto;
+import ftn.project.web.dto.order.*;
 import org.hibernate.tool.schema.internal.exec.ScriptTargetOutputToFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,10 +20,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -52,6 +54,19 @@ public class OrderController {
         Order order = orderService.findOne(id);
         OrderToFrontDto orderToFrontDto = orderToOrderToFrontDto.convert(order);
         return new ResponseEntity<>(orderToFrontDto, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderToFrontDto>> find(OrderSearchParams searchParams) {
+
+        List<Order> orders = orderService
+                .find(searchParams);
+
+
+        List<OrderToFrontDto> toFrontDtos = orders.stream()
+                .map(order -> orderToOrderToFrontDto.convert(order)).collect(Collectors.toList());
+
+        return new ResponseEntity<>(toFrontDtos, HttpStatus.OK);
     }
 
     //READ_ALL_FROM_BUYER
@@ -119,7 +134,7 @@ public class OrderController {
     //INITIAL_CREATE
     @PostMapping(consumes = "application/json")
     @PreAuthorize("hasAnyRole('BUYER')")
-    public ResponseEntity<OrderToFrontDto> initialCreation(@Valid @RequestBody InitialOrderFromFrontDto initialOrderFromFrontDto, Principal principal) {
+    public ResponseEntity<OrderToFrontDto> initialCreation(@Valid @RequestBody InitialOrderFromFrontDto initialOrderFromFrontDto, Principal principal) throws IOException {
         System.out.println("Creating initial order " + initialOrderFromFrontDto);
         System.out.println();
         ResponseEntity response = null;
@@ -143,12 +158,12 @@ public class OrderController {
     //MARK_DELIVERED
     @PutMapping(value = "/delivered/{id}", consumes = "application/json")
     @PreAuthorize("hasAnyRole('BUYER')")
-    public ResponseEntity<OrderToFrontDto> setDeliveredOrderFromFront(@PathVariable("id") Long id, Principal principal) {
+    public ResponseEntity<OrderToFrontDto> setDeliveredOrderFromFront(@PathVariable("id") Long id, Principal principal) throws IOException {
         ResponseEntity response = null;
         Order order = orderService.findOne(id);
         if(order.getBuyer().getUsername().equals(principal.getName())) {
             order.setDelivered(true);
-            orderService.update(order);
+            orderService.save(order);
             OrderToFrontDto orderToFrontDto = orderToOrderToFrontDto.convert(order);
             response = new ResponseEntity(orderToFrontDto, HttpStatus.OK);
         } else {
@@ -160,14 +175,14 @@ public class OrderController {
     //MARK_ARCHIVED_BY_SELLER
     @PutMapping(value = "/archived_comment/{id}", consumes = "application/json")
     @PreAuthorize("hasAnyRole('SELLER')")
-    public ResponseEntity<OrderToFrontDto> setArchivedCommentFromFront(@PathVariable("id") Long id, @RequestBody ArchivedCommentOrderFromFrontDto archivedCommentOrderFromFrontDto, Principal principal) {
+    public ResponseEntity<OrderToFrontDto> setArchivedCommentFromFront(@PathVariable("id") Long id, @RequestBody ArchivedCommentOrderFromFrontDto archivedCommentOrderFromFrontDto, Principal principal) throws IOException {
         ResponseEntity response = null;
         Order order = orderService.findOne(id);
 
         for(ArticleQuantity aq:order.getArticleQuantity()) {
             if(aq.getArticle().getSeller().getUsername().equals(principal.getName())) {
                 order.setArchivedComment(archivedCommentOrderFromFrontDto.isArchivedComment());
-                orderService.update(order);
+                orderService.save(order);
                 OrderToFrontDto orderToFrontDto = orderToOrderToFrontDto.convert(order);
                 response = new ResponseEntity(orderToFrontDto, HttpStatus.OK);
                 break;
@@ -182,7 +197,7 @@ public class OrderController {
     //ORDER_FEEDBACK
     @PutMapping(value = "/buyer_feedback/{id}", consumes = "application/json")
     @PreAuthorize("hasAnyRole('BUYER')")
-    public ResponseEntity<OrderToFrontDto> buyerFeedbackFromFront(@PathVariable("id") Long id, @Valid @RequestBody BuyerFeedbackOrderFromFront buyerFeedbackOrderFromFront, Principal principal) {
+    public ResponseEntity<OrderToFrontDto> buyerFeedbackFromFront(@PathVariable("id") Long id, @Valid @RequestBody BuyerFeedbackOrderFromFront buyerFeedbackOrderFromFront, Principal principal) throws IOException {
         System.out.println("Buyer Feedback Hitted!");
         System.out.println("Buyer feedback " + buyerFeedbackOrderFromFront);
         ResponseEntity response = null;
@@ -192,7 +207,7 @@ public class OrderController {
             order.setRating(buyerFeedbackOrderFromFront.getRating());
             order.setAnonymusComment(buyerFeedbackOrderFromFront.isAnonymusComment());
             OrderToFrontDto orderToFrontDto = orderToOrderToFrontDto.convert(order);
-            orderService.update(order);
+            orderService.save(order);
             response = new ResponseEntity(orderToFrontDto, HttpStatus.OK);
         } else {
             response = new ResponseEntity(null, HttpStatus.FORBIDDEN);

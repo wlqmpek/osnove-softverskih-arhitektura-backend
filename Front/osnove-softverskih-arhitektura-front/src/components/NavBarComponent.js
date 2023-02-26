@@ -21,6 +21,8 @@ const NavBarComponent = () => {
             <Navbar bg="dark" variant="dark">
                 <Navbar.Brand href="/">Home</Navbar.Brand>
                 <Nav className="mr-auto">
+                    <Nav.Link href="/search_articles">Search articles</Nav.Link>
+                    <Nav.Link href="/search_orders">Search orders</Nav.Link>
                     <Nav.Link href="/sellers">List</Nav.Link>
                     <Nav.Link href="/undelivered_orders">Undelivered</Nav.Link>
                     <Nav.Link href="/delivered_orders">Delivered</Nav.Link>
@@ -45,7 +47,6 @@ const NavBarComponent = () => {
                 </Nav>
             </Navbar>
             <br />
-            <button onClick={() => {console.log(userRole === Constants.UserRoles.SELLER)}}>User Role</button>
 
         </>
     );

@@ -25,7 +25,7 @@ public class ArticleElastic {
     @Id
     private Long articleId;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Text)
     private String name;
 
     @Field(type = FieldType.Text)

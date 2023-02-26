@@ -42,8 +42,6 @@ public class ArticleController {
 
     @Autowired
     private ArticleToArticleToFrontDto articleToArticleToFrontDto;
-    @Autowired
-    private ArticleToArticleToBeIndexedDto articleToArticleToBeIndexedDtoConverter;
 
     @Autowired
     private DiscountService discountService;
@@ -108,10 +106,11 @@ public class ArticleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ArticleToFrontDto>> find(@RequestBody ArticleSearchParams searchParams) {
+    public ResponseEntity<List<ArticleToFrontDto>> find(ArticleSearchParams searchParams) {
 
         List<Article> articles = articleService
                 .find(searchParams);
+
 
         List<ArticleToFrontDto> toFrontDtos = articles.stream().map(article -> articleToArticleToFrontDto.convert(article)).collect(Collectors.toList());
 
@@ -126,21 +125,13 @@ public class ArticleController {
     public ResponseEntity create(@ModelAttribute ArticleFromFrontDto articleFromFrontDTO, Principal principal) {
         articleFromFrontDTO.setSellerUsername(principal.getName());
 
-        Article savedArticle =
-                articleService.save(articleFromFrontDTO);
-
-        ArticleToBeIndexedDto newArticleToBeIndexed =
-                articleToArticleToBeIndexedDtoConverter.convert(savedArticle);
-
-        //newArticleToBeIndexed.setPdf(articleFromFrontDTO.getPdf());
-
         try {
-            //todo: završi implementaciju ovoga, proveri articleService da li je sve okej n
-            articleElasticService.indexUploadedArticle(newArticleToBeIndexed);
-
+            articleService.save(articleFromFrontDTO);
         } catch (IOException e) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+
+        //newArticleToBeIndexed.setPdf(articleFromFrontDTO.getPdf());
 
         return new ResponseEntity(HttpStatus.CREATED);
     }
@@ -178,8 +169,8 @@ public class ArticleController {
         if(p.getName().equals(article.getSeller().getUsername())) {
             //Delete from seller, discount and articleQuantity
             sellerService.deleteArticle(article);
-            discountService.deleteArticle(article);
-            articleQuantityService.deleteArticle(article);
+            //discountService.deleteArticle(article);
+            //articleQuantityService.deleteArticle(article);
 //            articleService.remove(article.getArticleId());
             response = (article == null) ?
                     new ResponseEntity(article, HttpStatus.NOT_FOUND) : new ResponseEntity(HttpStatus.NO_CONTENT);

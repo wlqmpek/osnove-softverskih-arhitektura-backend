@@ -10,15 +10,21 @@ import ftn.project.models.Discount;
 import ftn.project.repositories.SellerRepository;
 import ftn.project.services.ArticleService;
 import ftn.project.support.converters.article.ArticleFromFrontDTOToArticle;
+import ftn.project.support.converters.article.ArticleToArticleToBeIndexedDto;
+import ftn.project.support.converters.article.ArticleToArticleToFrontDto;
 import ftn.project.web.dto.article.ArticleFromFrontDto;
 import ftn.project.web.dto.article.ArticleSearchParams;
+import ftn.project.web.dto.article.ArticleToBeIndexedDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ftn.project.repositories.ArticleRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,6 +55,9 @@ public class ArticleServiceImplementation implements ArticleService {
     @Autowired
     private ArticleElasticService articleElasticService;
 
+    @Autowired
+    private ArticleToArticleToBeIndexedDto articleToArticleToBeIndexedDtoConverter;
+
 
     @Override
     public Article findOne(Long id) {
@@ -77,7 +86,8 @@ public class ArticleServiceImplementation implements ArticleService {
     }
 
     @Override
-    public Article save(ArticleFromFrontDto articleFromFrontDto) {
+    @Transactional
+    public Article save(ArticleFromFrontDto articleFromFrontDto) throws IOException {
 
         Article article = articleFromFrontDTOToArticle
                 .convert(articleFromFrontDto);
@@ -89,7 +99,18 @@ public class ArticleServiceImplementation implements ArticleService {
             throw new RuntimeException(e);
         }
 
-        return articleRepository.save(article);
+        Article savedArticle = articleRepository.save(article);
+
+        ArticleToBeIndexedDto newArticleToBeIndexed =
+                articleToArticleToBeIndexedDtoConverter.convert(savedArticle);
+
+        ArticleElastic indexedArticle = articleElasticService.indexUploadedArticle(newArticleToBeIndexed);
+
+        savedArticle.setDescription(indexedArticle.getDescription());
+
+        savedArticle = articleRepository.save(savedArticle);
+
+        return savedArticle;
     }
 
     @Override
@@ -153,14 +174,13 @@ public class ArticleServiceImplementation implements ArticleService {
         List<ArticleElastic> articleElastics = articleElasticService
                 .find(searchParams);
 
-        List<Article> articles = articleRepository
-                .findByArticleIdIn(
-                        articleElastics
-                                .stream()
-                                .map(articleElastic -> articleElastic.getArticleId())
-                                .collect(Collectors.toList())
-                );
 
+
+
+
+        //List<ArticleElastic> articleElastics = articleElasticService.findByDescription(searchParams);
+
+        List<Article> articles = articleElastics.stream().map(ae -> articleRepository.findByArticleId(ae.getArticleId())).collect(Collectors.toList());
 
         return articles;
     }

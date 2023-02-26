@@ -3,6 +3,7 @@ package ftn.project.elasticservices;
 import ftn.project.lucene.indexing.handlers.DocumentHandler;
 import ftn.project.lucene.indexing.handlers.PDFHandler;
 import ftn.project.models.ArticleElastic;
+import ftn.project.models.LogicalOperator;
 import ftn.project.web.dto.SimpleQueryEs;
 import ftn.project.web.dto.article.ArticleSearchParams;
 import ftn.project.web.dto.article.ArticleToBeIndexedDto;
@@ -42,29 +43,98 @@ public class ArticleElasticServiceImplementation implements ArticleElasticServic
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     @Override
+    public List<ArticleElastic> findByDescription(ArticleSearchParams articleSearchParams) {
+        return articleElasticRepository.findAllByDescription(articleSearchParams.getDescription());
+    }
+
+//    @Override
+//    public List<ArticleElastic> find(ArticleSearchParams articleSearchParams) {
+//        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+//
+//        if (!articleSearchParams.getName().isBlank()) {
+//            QueryBuilder findByName = SearchQueryGenerator.createMatchQueryBuilder(
+//                    new SimpleQueryEs("name", articleSearchParams.getName()));
+//            boolQuery.must(findByName);
+//        }
+//
+//        if (!articleSearchParams.getDescription().isBlank()) {
+//            QueryBuilder findByDescription = SearchQueryGenerator.createMatchQueryBuilder(
+//                    new SimpleQueryEs("description", articleSearchParams.getDescription()));
+//            if (articleSearchParams.getNameDescription() == LogicalOperator.AND) {
+//                boolQuery.must(findByDescription);
+//            } else if (articleSearchParams.getNameDescription() == LogicalOperator.OR) {
+//                boolQuery.should(findByDescription);
+//            }
+//        }
+//
+//        if (articleSearchParams.getMinPrice() != null || articleSearchParams.getMaxPrice() != null) {
+//
+//            Double minPrice = articleSearchParams.getMinPrice() != null ? articleSearchParams.getMinPrice() : 0.0;
+//            Double maxPrice = articleSearchParams.getMaxPrice() != null ? articleSearchParams.getMaxPrice() : Double.MAX_VALUE;
+//
+//            QueryBuilder findByPrice = SearchQueryGenerator.createRangeQueryBuilder(
+//                    new SimpleQueryEs("price", minPrice + "-" + maxPrice));
+//
+//            if (articleSearchParams.getDescriptionPrice() == LogicalOperator.AND) {
+//                boolQuery.must(findByPrice);
+//
+//            } else if (articleSearchParams.getDescriptionPrice() == LogicalOperator.OR) {
+//                boolQuery.should(findByPrice);
+//            }
+//        }
+//
+//        return searchByBoolQuery(boolQuery)
+//                .stream()
+//                .map(sh -> sh.getContent())
+//                .collect(Collectors.toList());
+//    }
+
+    @Override
     public List<ArticleElastic> find(ArticleSearchParams articleSearchParams) {
-        QueryBuilder findByName = SearchQueryGenerator
-                .createMatchQueryBuilder(new SimpleQueryEs("name", articleSearchParams.getName()));
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
-        QueryBuilder findByDescription = SearchQueryGenerator
-                .createMatchQueryBuilder(new SimpleQueryEs("description", articleSearchParams.getDescription()));
+        if (!articleSearchParams.getName().isBlank()) {
+            QueryBuilder findByName = SearchQueryGenerator.createMatchQueryBuilder(
+                    new SimpleQueryEs("name", articleSearchParams.getName()));
 
-        //TODO: Make sure to check the min and max price for null!
-        QueryBuilder findByPrice = SearchQueryGenerator
-                .createRangeQueryBuilder(new SimpleQueryEs("price", articleSearchParams.getMinPrice() + "-" + articleSearchParams.getMaxPrice()));
+            if(articleSearchParams.getNameDescription() == LogicalOperator.AND) {
+                boolQuery.must(findByName);
+            } else {
+                boolQuery.should(findByName);
+            }
+        }
 
-        BoolQueryBuilder boolQuery = QueryBuilders
-                .boolQuery()
-                .must(findByName)
-                .must(findByPrice);
+        if (!articleSearchParams.getDescription().isBlank()) {
+            QueryBuilder findByDescription = SearchQueryGenerator.createMatchQueryBuilder(
+                    new SimpleQueryEs("description", articleSearchParams.getDescription()));
+            if (articleSearchParams.getNameDescription() == LogicalOperator.AND) {
+                boolQuery.must(findByDescription);
+            } else if (articleSearchParams.getNameDescription() == LogicalOperator.OR) {
+                boolQuery.should(findByDescription);
+            }
+        }
 
-        return searchByBoolQuerry(boolQuery)
+        if (articleSearchParams.getMinPrice() != null || articleSearchParams.getMaxPrice() != null) {
+            Double minPrice = articleSearchParams.getMinPrice() != null ? articleSearchParams.getMinPrice() : 0.0;
+            Double maxPrice = articleSearchParams.getMaxPrice() != null ? articleSearchParams.getMaxPrice() : Double.MAX_VALUE;
+            QueryBuilder findByPrice = SearchQueryGenerator.createRangeQueryBuilder(
+                    new SimpleQueryEs("price", minPrice + "-" + maxPrice));
+            if (articleSearchParams.getDescriptionPrice() == LogicalOperator.AND) {
+                boolQuery.must(findByPrice);
+            } else if (articleSearchParams.getDescriptionPrice() == LogicalOperator.OR) {
+                boolQuery.should(findByPrice);
+            }
+        }
+
+        List<ArticleElastic> articles = searchByBoolQuery(boolQuery)
                 .stream()
                 .map(sh -> sh.getContent())
                 .collect(Collectors.toList());
+
+        return articles;
     }
 
-    private SearchHits<ArticleElastic> searchByBoolQuerry(BoolQueryBuilder boolQuery) {
+    private SearchHits<ArticleElastic> searchByBoolQuery(BoolQueryBuilder boolQuery) {
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(boolQuery)
                 .build();
@@ -72,11 +142,9 @@ public class ArticleElasticServiceImplementation implements ArticleElasticServic
         return elasticsearchRestTemplate.search(searchQuery, ArticleElastic.class, IndexCoordinates.of("articles"));
     }
 
-
-
     @Override
-    public void index(ArticleElastic articleElastic) {
-        articleElasticRepository.save(articleElastic);
+    public ArticleElastic index(ArticleElastic articleElastic) {
+        return articleElasticRepository.save(articleElastic);
     }
 
     @Override
@@ -94,7 +162,7 @@ public class ArticleElasticServiceImplementation implements ArticleElasticServic
     }
 
     @Override
-    public void indexUploadedArticle(ArticleToBeIndexedDto article) throws IOException {
+    public ArticleElastic indexUploadedArticle(ArticleToBeIndexedDto article) throws IOException {
         //todo: handle optional
 //        Seller seller = sellerRepository.findSellerByUsername(
 //                articleFromFrontDto.getSellerUsername()
@@ -115,9 +183,10 @@ public class ArticleElasticServiceImplementation implements ArticleElasticServic
             articleElasticIndexUnit.setSellerUsername(article.getSellerUsername());
             articleElasticIndexUnit.setPdfName(article.getPdfName());
             //articleElasticIndexUnit.setSeller(seller);
-            index(articleElasticIndexUnit);
+            return index(articleElasticIndexUnit);
         }
 
+        return null;
     }
     public DocumentHandler getHandler(String fileName){
         return getDocumentHandler(fileName);

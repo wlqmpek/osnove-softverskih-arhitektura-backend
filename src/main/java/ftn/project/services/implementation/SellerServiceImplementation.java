@@ -1,9 +1,11 @@
 package ftn.project.services.implementation;
 
+import ftn.project.elasticrepositories.ArticleElasticRepository;
 import ftn.project.models.Article;
 import ftn.project.models.ArticleQuantity;
 import ftn.project.models.Order;
 import ftn.project.models.Seller;
+import ftn.project.repositories.ArticleRepository;
 import ftn.project.repositories.SellerRepository;
 import ftn.project.services.SellerService;
 import javassist.NotFoundException;
@@ -22,6 +24,10 @@ public class SellerServiceImplementation implements SellerService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ArticleRepository articleRepository;
+    @Autowired
+    private ArticleElasticRepository articleElasticRepository;
 
     @Override
     public Seller findOne(Long id) {
@@ -91,6 +97,9 @@ public class SellerServiceImplementation implements SellerService {
         Seller seller = findOne(article.getSeller().getUserId());
         System.out.println("Seller before " + seller.getArticles());
         seller.getArticles().remove(article);
+        articleElasticRepository.delete(articleElasticRepository.findById(article.getArticleId()).get());
+        articleRepository.delete(article);
+
         System.out.println("Seller after " + seller.getArticles());
         update(seller);
     }

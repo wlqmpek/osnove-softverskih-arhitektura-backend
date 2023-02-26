@@ -22,7 +22,7 @@ public class Article {
     @Column(name = "article_id")
     private Long articleId;
 
-    @Column(name = "name", nullable = true, unique = true)
+    @Column(name = "name", nullable = true, columnDefinition = "LONGTEXT")
     private String name;
 
     @Column(name = "description", nullable = true)

@@ -9,7 +9,7 @@ public class ArticleSearchParams {
     private String name;
     private LogicalOperator nameDescription;
     private String description;
-    private String descriptionPrice;
+    private LogicalOperator descriptionPrice;
     private Double minPrice;
     private Double maxPrice;
 

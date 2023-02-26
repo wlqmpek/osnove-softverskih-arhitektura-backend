@@ -8,8 +8,13 @@ export const ArticleService = {
     createArticle,
     updateArticle,
     saveImage,
-    deleteArticle
+    deleteArticle,
+    searchArticles
 };
+
+async function searchArticles(searchParams) {
+    return await AxiosClient.get("articles", {params : searchParams});
+}
 
 async function getArticles() {
     return await AxiosClient.get("articles");
